@@ -607,8 +607,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FluxtreamCapture/FluxtreamCapture-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -624,7 +624,7 @@
 					"\"$(SRCROOT)/FluxtreamCapture/TestFlightSDK1.2.5\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "684A689E-AA38-44FA-8AF7-E35368BE9463";
+				PROVISIONING_PROFILE = "C2B07326-9A82-44EE-965E-89D7467A044E";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
