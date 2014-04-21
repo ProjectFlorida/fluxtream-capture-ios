@@ -30,6 +30,8 @@
 @property (strong, nonatomic) UISwitch *heartRateSwitch;
 @property (strong, nonatomic) IBOutlet UITableViewCell *heartbeatSoundCell;
 @property (strong, nonatomic) UISwitch *heartbeatSoundSwitch;
+@property (weak, nonatomic) IBOutlet UITableViewCell *filterConnectionModeCell;
+@property (strong, nonatomic) UISwitch *filterConnectionModeSwitch;
 
 // Automatic Photo Upload
 @property (strong, nonatomic) IBOutlet UITableViewCell *portraitCell;

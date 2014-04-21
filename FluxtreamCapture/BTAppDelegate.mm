@@ -20,11 +20,11 @@
 #pragma clang diagnostic pop
     //[TestFlight takeOff:@"f9c4aa0a-550e-4c8c-bdce-1b9dfa6b6f1b"];
 
+    [self registerDefaults];
+
     _pulseTracker = [[BTPulseTracker alloc] init];
     _phoneTracker = [[BTPhoneTracker alloc] init];
     _photoUploader = [BTPhotoUploader sharedPhotoUploader];
-    
-    [self registerDefaults];
     
     return YES;
 }
@@ -45,6 +45,7 @@
     [defaultValues setObject:[NSNumber numberWithBool:YES] forKey:DEFAULTS_RECORD_APP_STATS];
     [defaultValues setObject:[NSNumber numberWithBool:YES] forKey:DEFAULTS_RECORD_HEARTRATE];
     [defaultValues setObject:[NSNumber numberWithBool:NO] forKey:DEFAULTS_HEARTBEAT_SOUND];
+    [defaultValues setObject:[NSNumber numberWithBool:NO] forKey:DEFAULTS_FILTER_DEVICES];
     
     [defaultValues setObject:[NSNumber numberWithBool:NO] forKey:DEFAULTS_PHOTO_ORIENTATION_PORTRAIT];
     [defaultValues setObject:[NSNumber numberWithBool:NO] forKey:DEFAULTS_PHOTO_ORIENTATION_UPSIDE_DOWN];

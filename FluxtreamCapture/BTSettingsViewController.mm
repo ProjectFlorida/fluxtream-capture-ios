@@ -57,6 +57,11 @@
     [_heartRateSwitch addTarget:self action:@selector(updateFromUI:) forControlEvents:UIControlEventValueChanged];
     [_recordHeartRateCell setAccessoryView:_heartRateSwitch];
     [_heartRateSwitch setOn:[defaults boolForKey:DEFAULTS_RECORD_HEARTRATE]];
+
+    _filterConnectionModeSwitch = [[UISwitch alloc] init];
+    [_filterConnectionModeSwitch addTarget:self action:@selector(updateFromUI:) forControlEvents:UIControlEventValueChanged];
+    [_filterConnectionModeCell setAccessoryView:_filterConnectionModeSwitch];
+    [_filterConnectionModeSwitch setOn:[defaults boolForKey:DEFAULTS_FILTER_DEVICES]];
     
     _heartbeatSoundSwitch = [[UISwitch alloc] init];
     [_heartbeatSoundSwitch addTarget:self action:@selector(updateFromUI:) forControlEvents:UIControlEventValueChanged];
@@ -140,10 +145,12 @@
     [defaults setBool:_upsideDownUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_UPSIDE_DOWN];
     [defaults setBool:_landscapeLeftUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_LANDSCAPE_LEFT];
     [defaults setBool:_landscapeRightUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_LANDSCAPE_RIGHT];
+    [defaults setBool:_filterConnectionModeSwitch.isOn forKey:DEFAULTS_FILTER_DEVICES];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
     [self updateUploaderFromUI:pulseTracker.uploader];
+    pulseTracker.connectMode = (_filterConnectionModeSwitch.isOn) ? kConnectUUIDMode : kConnectBestSignalMode;
     
     BTPhoneTracker *phoneTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] phoneTracker];
     [self updateUploaderFromUI:phoneTracker.batteryUploader];

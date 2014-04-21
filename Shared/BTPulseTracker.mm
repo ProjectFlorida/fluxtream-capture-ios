@@ -14,6 +14,7 @@
 #import "NSUtils.h"
 #import "Samples.h"
 #include "Nickname.h"
+#include "Constants.h"
 
 #include "UUID.h"
 
@@ -75,7 +76,20 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         self.logger = [[Logger alloc] init];
         self.autoConnect = YES;
         self.discoveredPeripherals = [[NSMutableArray alloc] init];
-        
+
+        // get any previously stored peripheral uuid from defaults
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSString *connectUUID = [defaults stringForKey:DEFAULTS_CONNECT_UUID];
+        if (connectUUID ) {
+            CFUUIDRef connectCFUUID = CFUUIDCreateFromString(kCFAllocatorDefault, (CFStringRef)connectUUID);
+            self.connectUUID = getUUID(connectCFUUID);
+            CFRelease(connectCFUUID);
+        }
+
+        BOOL shouldFilterUUIDs = [defaults boolForKey:DEFAULTS_FILTER_DEVICES];
+        self.connectMode = (shouldFilterUUIDs) ? kConnectUUIDMode : kConnectBestSignalMode;
+
+
         self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
         if (self.autoConnect) [self tryConnect];
 
@@ -84,6 +98,7 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         [self.uploader addChannel:@"HeartRate"];
         [self.uploader addChannel:@"BeatSpacing"];
         self.uploader.maximumAge = 60.0;
+
     }
     return self;
 }
@@ -445,6 +460,10 @@ static NSString *getNickname(CBPeripheral *peripheral) {
 {
     if (!self.peripheral) {
         self.peripheral = peripheral;
+        self.connectUUID = getUUID(peripheral.UUID);
+        [[NSUserDefaults standardUserDefaults] setObject:(NSString*)CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, peripheral.UUID))
+                                                  forKey:DEFAULTS_CONNECT_UUID];
+
         self.state = BTPulseTrackerConnectingState;
         [self.manager connectPeripheral:peripheral options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
     }
