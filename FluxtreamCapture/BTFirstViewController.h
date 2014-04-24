@@ -22,5 +22,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *hrUploadStatusLabel;
 @property (weak, nonatomic) IBOutlet UITextView *hrLogView;
 @property (weak, nonatomic) IBOutlet UILabel *buildLabel;
+@property (weak, nonatomic) IBOutlet UILabel *activityLabel;
+@property (weak, nonatomic) IBOutlet UILabel *accelerationLabel;
 
 @end

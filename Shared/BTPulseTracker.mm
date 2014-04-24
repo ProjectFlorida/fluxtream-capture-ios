@@ -28,6 +28,8 @@
 - (void)pulse;
 - (void)updateWithHRMData:(NSData *)data;
 
+-(void)updateWithCustomData:(NSData*)data;
+
 
 @property (strong) CBCentralManager *manager;
 @property (strong, nonatomic) CBPeripheral *peripheral;
@@ -47,8 +49,8 @@ static UUID getUUID(CFUUIDRef uuid) {
  * Get printable name for peripheral
  */
 static NSString *getNickname(CBPeripheral *peripheral) {
-    // Polar H7 has unique identifier as part of name, awesome
-    if ([peripheral.name hasPrefix:@"Polar H7 "]) {
+    // Polar H7 and Zephyr HxM have unique identifier as part of name, awesome
+    if ([peripheral.name hasPrefix:@"Polar H7 "] || [peripheral.name hasPrefix:@"Zephyr"]) {
         return peripheral.name;
     }
     // Otherwise, give it a nickname according to UUID, if possible
@@ -99,6 +101,12 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         [self.uploader addChannel:@"BeatSpacing"];
         self.uploader.maximumAge = 60.0;
 
+        // Zephyr channels:
+        self.zephyrUploader = [[FluxtreamUploaderObjc alloc] init];
+        self.zephyrUploader.deviceNickname = @"ZephyrStrap";
+        [self.zephyrUploader addChannel:@"ActivityLevel"];
+        [self.zephyrUploader addChannel:@"PeakAcceleration"];
+        self.zephyrUploader.maximumAge = 60.;
     }
     return self;
 }
@@ -370,6 +378,51 @@ static NSString *getNickname(CBPeripheral *peripheral) {
 }
 
 
+#pragma mark - Zephyr Custom data services
+-(void)updateWithCustomData:(NSData*)data;
+{
+    // NSLog(@"got custom data: %@", [data description]);
+    // | flags | activity LSB | activity MSB | peak accel LSB | peak accel MSB |
+
+    // activity
+    // The current activity level. Valid range is 0…16 with 0.01 unit resolution, e.g. a value of 100 represents activity level = 1.00
+
+    // accel
+    // The highest g-force measured in the last measurement period of 1 second. Valid range is 0…16 with 0.01 unit resolution e.g. a value of 250 represents 2.50g.
+
+    uint16_t activity = 0, accel = 0;
+    uint8_t flags = 0;
+
+    NSRange datumRange = NSMakeRange(0, 1);
+    [data getBytes:&flags range:datumRange];
+
+    // flags:
+    // bit 0, activity available
+    // bit 1, acceleration available
+    // bit 2-7, reserved
+    if (flags & 0x1) {
+        datumRange.length = 2;
+        datumRange.location = 1;
+        [data getBytes:&activity range:datumRange];
+        //activity = ntohs(activity);  // the byte order seems "flipped" on the wire
+    }
+
+    if (flags & 0x2) {
+        datumRange.length = 2;
+        datumRange.location = 3;
+        [data getBytes:&accel range:datumRange];
+        //accel = ntohs(accel); // the byte order seems "flipped" on the wire
+    }
+
+    // NSLog(@"Zephyr, activity: %.2f accel: %.2f", (activity/100.), (accel/100.));
+
+    self.activityLevel = (activity/100.);
+    self.peakAccelerometer = (accel/100.);
+    
+    double now = doubletime();
+    [self.zephyrUploader addSample:now ch0:self.activityLevel ch1:self.peakAccelerometer];
+}
+
 #pragma mark - CBCentralManager delegate methods
 /*
  Invoked whenever the central manager's state is updated.
@@ -571,6 +624,10 @@ static NSString *getNickname(CBPeripheral *peripheral) {
  * 180d:2a38 Body Sensor Location
  *
  * 180f:2a19 Battery Level (%)
+ *
+ * Zephyr HxM includes a custom data service:
+ * BEFDFF10-C979-11E1-9B21-0800200C9A66   : Custom data service
+ *   BEFDFF11-C979-11E1-9B21-0800200C9A66 : Custom data characteristic (activity level, peak accelerometer)
  */
 
 unsigned long long u64(CBUUID *uuid);
@@ -583,6 +640,11 @@ unsigned long long u64(CBUUID *uuid) {
     }
     return ret;
 }
+
+
+NSString * const kZephyrCustomDataServiceUUID        = @"BEFDFF10-C979-11E1-9B21-0800200C9A66";
+NSString * const kZephyrCustomDataCharacteristicUUID = @"BEFDFF11-C979-11E1-9B21-0800200C9A66";
+const unsigned long long kZephyrCustomDataCharacteristic = 13834494082748881895ull;
 
 NSString *hex(CFUUIDRef uuid);
 NSString *hex(CFUUIDRef uuid) {
@@ -672,6 +734,9 @@ unsigned long long lsbFirst(NSData *data) {
             break;
         case 0x2A38: // Body sensor location
             [self.logger logVerbose:@"Body sensor location: %d", (int)lsbFirst(ch.value)];
+            break;
+        case kZephyrCustomDataCharacteristic:
+            [self updateWithCustomData:ch.value];
             break;
         default:
             [self.logger logVerbose:@"Characteristic %X: %@", (int)u64(ch.UUID), ch.value];

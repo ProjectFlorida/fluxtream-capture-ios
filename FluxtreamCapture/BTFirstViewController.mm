@@ -145,6 +145,10 @@
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
     self.heartRateLabel.text = [NSString stringWithFormat:@"%.0f BPM", pulseTracker.heartRate];
     self.variabilityLabel.text = [NSString stringWithFormat:@"%d ms", (int) (0.5 + pulseTracker.r2r * 1000)];
+
+    // just use this for the zepyhr data, too:
+    self.activityLabel.text = [NSString stringWithFormat:@"%.2f", pulseTracker.activityLevel];
+    self.accelerationLabel.text = [NSString stringWithFormat:@"%.2f g", pulseTracker.peakAccelerometer];
 }
 
 - (void)updateHRStatus {
