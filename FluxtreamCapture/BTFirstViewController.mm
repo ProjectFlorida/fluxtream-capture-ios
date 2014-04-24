@@ -89,13 +89,18 @@
     TextViewLogger *logger = [[TextViewLogger alloc] init];
     logger.maxDisplayedVerbosity = kLogNormal;
     logger.textView = self.hrLogView;
-    
+
+    // it seems incorrect that these are here, rather than in the pulseTracker class.
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
     pulseTracker.logger = logger;
     pulseTracker.uploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
     pulseTracker.uploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
     pulseTracker.uploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
-    
+
+    pulseTracker.zephyrUploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
+    pulseTracker.zephyrUploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
+    pulseTracker.zephyrUploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
+
     hrStatusTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateHRStatus) userInfo:nil repeats:YES];
     uploadStatusTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateUploadStatus) userInfo:nil repeats:YES];
 }
