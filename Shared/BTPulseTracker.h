@@ -28,8 +28,8 @@
 
 @interface BTPulseTracker : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property (strong) FluxtreamUploaderObjc *uploader;
-@property (strong) FluxtreamUploaderObjc *zephyrUploader;
+@property (strong) FluxtreamUploaderObjc *heartRateUploader;
+@property (strong) FluxtreamUploaderObjc *activityUploader;
 
 @property (weak) id<BTPulseTrackerDelegate> delegate;  /// Delegate receives notifications on peripheral connection changes, as well as pulse changes.
 @property (strong) Logger *logger;
