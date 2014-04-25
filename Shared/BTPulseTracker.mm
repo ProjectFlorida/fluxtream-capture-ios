@@ -27,7 +27,9 @@
 
 - (void)pulse;
 - (void)updateWithHRMData:(NSData *)data;
+- (void)updateWithCustomData:(NSData*)data;
 
+- (void)configureUploaderForManufacturer:(NSString*)manufacturerString;
 
 @property (strong) CBCentralManager *manager;
 @property (strong, nonatomic) CBPeripheral *peripheral;
@@ -47,8 +49,8 @@ static UUID getUUID(CFUUIDRef uuid) {
  * Get printable name for peripheral
  */
 static NSString *getNickname(CBPeripheral *peripheral) {
-    // Polar H7 has unique identifier as part of name, awesome
-    if ([peripheral.name hasPrefix:@"Polar H7 "]) {
+    // Polar H7 and Zephyr HxM have unique identifier as part of name, awesome
+    if ([peripheral.name hasPrefix:@"Polar H7 "] || [peripheral.name hasPrefix:@"Zephyr"]) {
         return peripheral.name;
     }
     // Otherwise, give it a nickname according to UUID, if possible
@@ -89,16 +91,8 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         BOOL shouldFilterUUIDs = [defaults boolForKey:DEFAULTS_FILTER_DEVICES];
         self.connectMode = (shouldFilterUUIDs) ? kConnectUUIDMode : kConnectBestSignalMode;
 
-
         self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
         if (self.autoConnect) [self tryConnect];
-
-        self.uploader = [[FluxtreamUploaderObjc alloc] init];
-        self.uploader.deviceNickname = @"PolarStrap";
-        [self.uploader addChannel:@"HeartRate"];
-        [self.uploader addChannel:@"BeatSpacing"];
-        self.uploader.maximumAge = 60.0;
-
     }
     return self;
 }
@@ -108,6 +102,60 @@ static NSString *getNickname(CBPeripheral *peripheral) {
     self.delegate = nil;
     [self.peripheral setDelegate:nil];
 }
+
+
+- (void)configureUploaderForManufacturer:(NSString*)manufacturerString;
+{
+    // this should be configured based on the device which connects, rather than hardcoded
+    // ie. the Polar Strap may only have HR and RR, but the Zephyr Strap also has
+    // activity level and peak acceleration. The MIO Alpha may only have HR.
+
+    // jettison any existing uploader first.
+    if (self.heartRateUploader) {
+        self.heartRateUploader = nil;
+    }
+    if (self.activityUploader) {
+        self.activityUploader = nil;
+    }
+
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+    if ([[manufacturerString lowercaseString] hasPrefix:@"zephyr"]) {
+        // the Zephyr has multiple data sources...use multiple uploaders.
+        self.heartRateUploader = [[FluxtreamUploaderObjc alloc] init];
+        self.heartRateUploader.maximumAge = 60.;
+        self.heartRateUploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
+        self.heartRateUploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
+        self.heartRateUploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
+        self.heartRateUploader.deviceNickname = @"ZephyrStrap";
+        [self.heartRateUploader addChannel:@"HeartRate"];
+        [self.heartRateUploader addChannel:@"BeatSpacing"];
+
+
+        self.activityUploader = [[FluxtreamUploaderObjc alloc] init];
+        self.activityUploader.maximumAge = 60.;
+        self.activityUploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
+        self.activityUploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
+        self.activityUploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
+        self.activityUploader.deviceNickname = @"ZephyrStrap";
+        [self.activityUploader addChannel:@"ActivityLevel"];
+        [self.activityUploader addChannel:@"PeakAcceleration"];
+    }
+    // assume polar strap. this should change.
+    else {
+        self.heartRateUploader = [[FluxtreamUploaderObjc alloc] init];
+        self.heartRateUploader.maximumAge = 60.;
+        self.heartRateUploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
+        self.heartRateUploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
+        self.heartRateUploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
+
+        self.heartRateUploader.deviceNickname = @"PolarStrap";
+        [self.heartRateUploader addChannel:@"HeartRate"];
+        [self.heartRateUploader addChannel:@"BeatSpacing"];
+    }
+}
+
 
 #pragma mark - Public connection stuff
 
@@ -336,12 +384,12 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         for (unsigned i = 0; i < r2rs.size(); i++) {
             if (log) if (i) msg += ", ";
             if (log) msg += string_printf("%.3f:%.3f", beatTimes[i]-now, r2rs[i]);
-            [self.uploader addSample:beatTimes[i] ch0:bpm ch1:r2rs[i]];
+            [self.heartRateUploader addSample:beatTimes[i] ch0:bpm ch1:r2rs[i]];  // if the uploader has not been initialized yet...this will silently fail.
         }
         if (log) msg += "]";
     }
     
-    if (log) msg += string_printf(" (now %ld samples stored)", (long) [self.uploader sampleCount]);
+    if (log) msg += string_printf(" (now %ld samples stored)", (long) [self.heartRateUploader sampleCount]);
     
     if (log) NSLog(@"HRM received: %@", [NSString stringWithUTF8String:msg.c_str()]);
     
@@ -369,6 +417,51 @@ static NSString *getNickname(CBPeripheral *peripheral) {
     }
 }
 
+
+#pragma mark - Zephyr Custom data services
+-(void)updateWithCustomData:(NSData*)data;
+{
+    // NSLog(@"got custom data: %@", [data description]);
+    // | flags | activity LSB | activity MSB | peak accel LSB | peak accel MSB |
+
+    // activity
+    // The current activity level. Valid range is 0…16 with 0.01 unit resolution, e.g. a value of 100 represents activity level = 1.00
+
+    // accel
+    // The highest g-force measured in the last measurement period of 1 second. Valid range is 0…16 with 0.01 unit resolution e.g. a value of 250 represents 2.50g.
+
+    uint16_t activity = 0, accel = 0;
+    uint8_t flags = 0;
+
+    NSRange datumRange = NSMakeRange(0, 1);
+    [data getBytes:&flags range:datumRange];
+
+    // flags:
+    // bit 0, activity available
+    // bit 1, acceleration available
+    // bit 2-7, reserved
+    if (flags & 0x1) {
+        datumRange.length = 2;
+        datumRange.location = 1;
+        [data getBytes:&activity range:datumRange];
+        //activity = ntohs(activity);  // the byte order seems "flipped" on the wire
+    }
+
+    if (flags & 0x2) {
+        datumRange.length = 2;
+        datumRange.location = 3;
+        [data getBytes:&accel range:datumRange];
+        //accel = ntohs(accel); // the byte order seems "flipped" on the wire
+    }
+
+    // NSLog(@"Zephyr, activity: %.2f accel: %.2f", (activity/100.), (accel/100.));
+
+    self.activityLevel = (activity/100.);
+    self.peakAccelerometer = (accel/100.);
+    
+    double now = doubletime();
+    [self.activityUploader addSample:now ch0:self.activityLevel ch1:self.peakAccelerometer];
+}
 
 #pragma mark - CBCentralManager delegate methods
 /*
@@ -507,6 +600,18 @@ static NSString *getNickname(CBPeripheral *peripheral) {
 {
     if (self.peripheral == peripheral) {
         [self.logger log:@"Lost connection to %@", getNickname(peripheral)];
+
+        // flush the uploaders, if any.
+        // Will this be a problem if there is a peripheral rapidly connecting/disconnecting?
+        if (self.heartRateUploader) {
+            [self.heartRateUploader uploadNow];
+            self.heartRateUploader = nil;
+        }
+        if (self.activityUploader) {
+            [self.activityUploader uploadNow];
+            self.activityUploader = nil;
+        }
+
         [self startScan];
     } else {
         [self.logger logVerbose:@"(Disconnected from %@)", getNickname(peripheral)];
@@ -571,7 +676,16 @@ static NSString *getNickname(CBPeripheral *peripheral) {
  * 180d:2a38 Body Sensor Location
  *
  * 180f:2a19 Battery Level (%)
+ *
+ * Zephyr HxM includes a custom data service:
+ * BEFDFF10-C979-11E1-9B21-0800200C9A66   : Custom data service
+ *   BEFDFF11-C979-11E1-9B21-0800200C9A66 : Custom data characteristic (activity level, peak accelerometer)
  */
+
+NSString * const kZephyrCustomDataServiceUUID        = @"BEFDFF10-C979-11E1-9B21-0800200C9A66";
+NSString * const kZephyrCustomDataCharacteristicUUID = @"BEFDFF11-C979-11E1-9B21-0800200C9A66";
+const unsigned long long kZephyrCustomDataCharacteristic = 13834494082748881895ull;
+
 
 unsigned long long u64(CBUUID *uuid);
 
@@ -669,9 +783,20 @@ unsigned long long lsbFirst(NSData *data) {
         case 0x2A29: // Manufacturer
             [self.logger logVerbose:@"Manufacturer: %@", utf8(ch.value)];
             self.manufacturer = utf8(ch.value);
+
+            // this should probably change...in the event our peripheral does not support this
+            // characteristic for some reason, then no uploaders will be configured.
+            // we really care about the class of data (heart, activity)
+            // not the manufacturer of the device, however, the precedent was set with "PolarStrap"
+            // so I'm just trying to play nice for the moment...and this a simple way
+            // to defer creating the uploader(s) until we know what type of device we've encountered.
+            [self configureUploaderForManufacturer:self.manufacturer];
             break;
         case 0x2A38: // Body sensor location
             [self.logger logVerbose:@"Body sensor location: %d", (int)lsbFirst(ch.value)];
+            break;
+        case kZephyrCustomDataCharacteristic:
+            [self updateWithCustomData:ch.value];
             break;
         default:
             [self.logger logVerbose:@"Characteristic %X: %@", (int)u64(ch.UUID), ch.value];

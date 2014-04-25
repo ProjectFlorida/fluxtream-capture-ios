@@ -34,7 +34,14 @@
         
         // Scroll to the most recent photos
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSIndexPath *path = [NSIndexPath indexPathForRow:([[[BTPhotoUploader sharedPhotoUploader] photos] count] - 1) inSection:0];
+            // if permission has not been given to the photo album...the +indexPathForRow returns an
+            // odd indexPath that crashes -scrollToItemAtIndexPath:
+            NSArray *photos = [[BTPhotoUploader sharedPhotoUploader] photos];
+            if (!photos) {
+                return;
+            }
+            NSIndexPath *path = [NSIndexPath indexPathForRow:([photos count] - 1) inSection:0];
+            if (!path) { return; }
             [_collectionView scrollToItemAtIndexPath:path atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
         });
     }

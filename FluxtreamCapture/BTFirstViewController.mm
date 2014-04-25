@@ -89,13 +89,10 @@
     TextViewLogger *logger = [[TextViewLogger alloc] init];
     logger.maxDisplayedVerbosity = kLogNormal;
     logger.textView = self.hrLogView;
-    
+
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
     pulseTracker.logger = logger;
-    pulseTracker.uploader.username = [defaults objectForKey:DEFAULTS_USERNAME];
-    pulseTracker.uploader.password = [defaults objectForKey:DEFAULTS_PASSWORD];
-    pulseTracker.uploader.serverPrefix = [defaults objectForKey:DEFAULTS_SERVER];
-    
+
     hrStatusTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateHRStatus) userInfo:nil repeats:YES];
     uploadStatusTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateUploadStatus) userInfo:nil repeats:YES];
 }
@@ -145,6 +142,10 @@
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
     self.heartRateLabel.text = [NSString stringWithFormat:@"%.0f BPM", pulseTracker.heartRate];
     self.variabilityLabel.text = [NSString stringWithFormat:@"%d ms", (int) (0.5 + pulseTracker.r2r * 1000)];
+
+    // just use this for the zepyhr data, too:
+    self.activityLabel.text = [NSString stringWithFormat:@"%.2f", pulseTracker.activityLevel];
+    self.accelerationLabel.text = [NSString stringWithFormat:@"%.2f g", pulseTracker.peakAccelerometer];
 }
 
 - (void)updateHRStatus {
@@ -155,7 +156,7 @@
 
 - (void)updateUploadStatus {
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
-    self.hrUploadStatusLabel.text = [pulseTracker.uploader getStatus];
+    self.hrUploadStatusLabel.text = [pulseTracker.heartRateUploader getStatus];
 }
 
 

@@ -147,9 +147,12 @@
     [defaults setBool:_landscapeRightUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_LANDSCAPE_RIGHT];
     [defaults setBool:_filterConnectionModeSwitch.isOn forKey:DEFAULTS_FILTER_DEVICES];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
+    // this will only work if the uploaders exist already.
     BTPulseTracker *pulseTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] pulseTracker];
-    [self updateUploaderFromUI:pulseTracker.uploader];
+    [self updateUploaderFromUI:pulseTracker.heartRateUploader];
+    [self updateUploaderFromUI:pulseTracker.activityUploader];
+
     pulseTracker.connectMode = (_filterConnectionModeSwitch.isOn) ? kConnectUUIDMode : kConnectBestSignalMode;
     
     BTPhoneTracker *phoneTracker = [(BTAppDelegate *)[[UIApplication sharedApplication] delegate] phoneTracker];

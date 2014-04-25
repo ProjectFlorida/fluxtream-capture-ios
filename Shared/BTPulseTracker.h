@@ -28,7 +28,9 @@
 
 @interface BTPulseTracker : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property (strong) FluxtreamUploaderObjc *uploader;
+@property (strong) FluxtreamUploaderObjc *heartRateUploader;
+@property (strong) FluxtreamUploaderObjc *activityUploader;
+
 @property (weak) id<BTPulseTrackerDelegate> delegate;  /// Delegate receives notifications on peripheral connection changes, as well as pulse changes.
 @property (strong) Logger *logger;
 
@@ -72,6 +74,10 @@ typedef enum {
 @property (assign) double lastBeatTime;
 @property (assign) BOOL lastBeatTimeValid;
 @property double lastHRDataReceived;
+
+// Zephyr HxM specific values:
+@property (assign) double activityLevel;
+@property (assign) double peakAccelerometer;
 
 - (void)tryConnect;
 - (void)disconnect;
