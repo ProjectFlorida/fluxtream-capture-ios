@@ -226,7 +226,7 @@ static NSString *const kBoundary = @"b0uNd4rYb0uNd4rYaehrtiffegbib";
         _isUploading = YES;
         NSLog(@"photoUploader uploadNow");
         
-        int i = [self photoIndexForUpload];
+        NSUInteger i = [self photoIndexForUpload];
 
         if (i == NSNotFound) {
             NSLog(@"No photos marked for upload");
@@ -310,9 +310,9 @@ static NSString *const kBoundary = @"b0uNd4rYb0uNd4rYaehrtiffegbib";
 }
 
 
-- (int)photoIndexForUpload
+- (NSUInteger)photoIndexForUpload
 {
-    for (int i = 0; i < [_photos count]; i++) {
+    for (NSUInteger i = 0; i < [_photos count]; i++) {
         BTPhotoAsset *photoAsset = [_photos objectAtIndex:i];
         if ([photoAsset.uploadStatus isEqual:@"1"] || photoAsset.commentNeedsUpdate == YES) {
             return i;
