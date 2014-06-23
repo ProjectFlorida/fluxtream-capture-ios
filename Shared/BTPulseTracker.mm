@@ -92,7 +92,7 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         self.connectMode = (shouldFilterUUIDs) ? kConnectUUIDMode : kConnectBestSignalMode;
 
         self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
-        if (self.autoConnect) [self tryConnect];
+        if (self.autoConnect) [self tryConnect]; // may not be able to do this immediately; must wait until we get the manager state callback.
     }
     return self;
 }
@@ -268,6 +268,7 @@ static NSString *getNickname(CBPeripheral *peripheral) {
             state = @"Bluetooth is currently powered off.";
             break;
         case CBCentralManagerStatePoweredOn:
+            NSLog(@"Bluetooth is currently powered on.");
             return TRUE;
         case CBCentralManagerStateUnknown:
         default:
@@ -284,6 +285,10 @@ static NSString *getNickname(CBPeripheral *peripheral) {
  */
 - (void) startScan
 {
+    if (![self checkBluetooth]) {
+        return;
+    }
+
     self.state = BTPulseTrackerScanState;
     self.peripheral = nil;
     self.manufacturer = @"";
@@ -469,7 +474,10 @@ static NSString *getNickname(CBPeripheral *peripheral) {
  */
 - (void) centralManagerDidUpdateState:(CBCentralManager *)central
 {
-    [self checkBluetooth];
+    BOOL result = [self checkBluetooth];
+    if (result && self.autoConnect) {
+        [self tryConnect];
+    }
 }
 
 
