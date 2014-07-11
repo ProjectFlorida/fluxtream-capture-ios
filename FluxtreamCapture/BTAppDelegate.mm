@@ -9,6 +9,7 @@
 #import "BTAppDelegate.h"
 #import "TestFlight.h"
 #import "Constants.h"
+#import "NotificationManager.h"
 
 @implementation BTAppDelegate
 
@@ -25,7 +26,14 @@
     _pulseTracker = [[BTPulseTracker alloc] init];
     _phoneTracker = [[BTPhoneTracker alloc] init];
     _photoUploader = [BTPhotoUploader sharedPhotoUploader];
-    
+
+    // iOS 8 only
+    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeAlert | UIUserNotificationTypeSound)
+                                                                                        categories:nil]];
+    }
+    [NotificationManager cancelAllNotifications];
+
     return YES;
 }
 
@@ -99,6 +107,9 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [self savePhotosArray];
     [[NSUserDefaults standardUserDefaults] synchronize];
+
+    // TODO: only want this scheduled if we were logging at the time.
+    [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceApplicationTerminated];
 }
 
 - (void)savePhotosArray

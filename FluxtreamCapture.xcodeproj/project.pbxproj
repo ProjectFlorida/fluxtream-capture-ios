@@ -30,6 +30,7 @@
 		01CAB402169DEFB80055FC28 /* 29-heart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB400169DEFB80055FC28 /* 29-heart@2x.png */; };
 		01CAB405169DF2B80055FC28 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB403169DF2B80055FC28 /* 86-camera.png */; };
 		01CAB406169DF2B80055FC28 /* 86-camera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB404169DF2B80055FC28 /* 86-camera@2x.png */; };
+		2491DBC7196F87D300FA60DE /* NotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2491DBC6196F87D300FA60DE /* NotificationManager.m */; };
 		681662FB16861086006ADBA6 /* BTPhoneTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 681662FA16861086006ADBA6 /* BTPhoneTracker.mm */; };
 		681662FD168E9547006ADBA6 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 681662FC168E9547006ADBA6 /* CoreLocation.framework */; };
 		68348C5C1763901500A5CD42 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 68348C581763901500A5CD42 /* README.md */; };
@@ -103,6 +104,8 @@
 		01CAB400169DEFB80055FC28 /* 29-heart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "29-heart@2x.png"; sourceTree = "<group>"; };
 		01CAB403169DF2B80055FC28 /* 86-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera.png"; sourceTree = "<group>"; };
 		01CAB404169DF2B80055FC28 /* 86-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera@2x.png"; sourceTree = "<group>"; };
+		2491DBC5196F87D300FA60DE /* NotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationManager.h; sourceTree = "<group>"; };
+		2491DBC6196F87D300FA60DE /* NotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationManager.m; sourceTree = "<group>"; };
 		681662F916861086006ADBA6 /* BTPhoneTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BTPhoneTracker.h; path = Shared/BTPhoneTracker.h; sourceTree = SOURCE_ROOT; };
 		681662FA16861086006ADBA6 /* BTPhoneTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BTPhoneTracker.mm; path = Shared/BTPhoneTracker.mm; sourceTree = SOURCE_ROOT; };
 		681662FC168E9547006ADBA6 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -295,6 +298,8 @@
 		C86C7F6F16331CA200D72C56 /* FluxtreamCapture */ = {
 			isa = PBXGroup;
 			children = (
+				2491DBC5196F87D300FA60DE /* NotificationManager.h */,
+				2491DBC6196F87D300FA60DE /* NotificationManager.m */,
 				683E7B0416824446005BB855 /* ChannelList.h */,
 				683E7B0516824446005BB855 /* ChannelList.cpp */,
 				019349FB169B630200870FDC /* Constants.h */,
@@ -480,6 +485,7 @@
 				68A0BE1E1639CD39006F66EB /* Nickname.cpp in Sources */,
 				68A0BE1F1639CD39006F66EB /* FluxtreamUploaderObjc.mm in Sources */,
 				68A0BE201639CD39006F66EB /* BTPulseTracker.mm in Sources */,
+				2491DBC7196F87D300FA60DE /* NotificationManager.m in Sources */,
 				68A0BE211639CD39006F66EB /* Utils.cpp in Sources */,
 				68A0BE221639CD39006F66EB /* NSUtils.mm in Sources */,
 				68A0BE231639CD39006F66EB /* Samples.cpp in Sources */,
