@@ -107,9 +107,6 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [self savePhotosArray];
     [[NSUserDefaults standardUserDefaults] synchronize];
-
-    // TODO: only want this scheduled if we were logging at the time.
-    [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceApplicationTerminated];
 }
 
 - (void)savePhotosArray

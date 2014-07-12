@@ -12,6 +12,7 @@ NSString* const FLXIdentifierKey = @"FLXIdentifierKey";
 NSString* const FLXIdentifierDeviceDisconnected = @"FLXIdentifierDeviceDisconnected";
 NSString* const FLXIdentifierDeviceDataNotReceived = @"FLXIdentifierDeviceDataNotReceived";
 NSString* const FLXIdentifierDeviceApplicationTerminated = @"FLXIdentifierDeviceApplicationTerminated";
+NSString* const FLXIdentifierDeviceBackgroundTaskExpired = @"FLXIdentifierDeviceBackgroundTaskExpired";
 
 // these values could be tweaked...need to find a good threshold to ignore rapid reconnections
 static NSTimeInterval deviceDisconnectionNotificationDelay  = 2 * 60;
@@ -42,6 +43,11 @@ static NSTimeInterval dataNotReceivedNotificationDelay      = 0.5 * 60;
 
 +(void)scheduleNotificationWithIdentifier:(NSString*)identifier;
 {
+    [self scheduleNotificationWithIdentifier:identifier fireDate:nil];
+}
+
++(void)scheduleNotificationWithIdentifier:(NSString*)identifier fireDate:(NSDate*)date;
+{
     // ensure the a notification of the incoming type is not already scheduled.
     [self cancelNotificationWithIdentifier:identifier];
 
@@ -53,21 +59,27 @@ static NSTimeInterval dataNotReceivedNotificationDelay      = 0.5 * 60;
     // by scheduling the notification inside each conditional we prevent scheduling unknown notification types.
     if ([identifier isEqualToString:FLXIdentifierDeviceApplicationTerminated]) {
         notification.alertBody = NSLocalizedString(@"Fluxtream logging has stopped.", nil);
-
-        [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
+        notification.fireDate = date;
+        [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+        return;
+    }
+    if ([identifier isEqualToString:FLXIdentifierDeviceBackgroundTaskExpired]) {
+        notification.alertBody = NSLocalizedString(@"Fluxtream background task has expired.", nil);
+        notification.fireDate = date;
+        [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
 
     if ([identifier isEqualToString:FLXIdentifierDeviceDisconnected]) {
         notification.alertBody = NSLocalizedString(@"Fluxtream lost the device connection.", nil);
-        notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:deviceDisconnectionNotificationDelay];
+        notification.fireDate = (date) ? date : [NSDate dateWithTimeIntervalSinceNow:deviceDisconnectionNotificationDelay];
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
 
     if ([identifier isEqualToString:FLXIdentifierDeviceDataNotReceived]) {
         notification.alertBody = NSLocalizedString(@"Fluxtream has stopped receiving data.", nil);
-        notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:dataNotReceivedNotificationDelay];
+        notification.fireDate = (date) ? date : [NSDate dateWithTimeIntervalSinceNow:dataNotReceivedNotificationDelay];
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
