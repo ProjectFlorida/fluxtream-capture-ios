@@ -27,11 +27,12 @@
     _phoneTracker = [[BTPhoneTracker alloc] init];
     _photoUploader = [BTPhotoUploader sharedPhotoUploader];
 
-    // iOS 8 only
+#if __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_7_1
     if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeAlert | UIUserNotificationTypeSound)
                                                                                         categories:nil]];
     }
+#endif
     [NotificationManager cancelAllNotifications];
 
     return YES;
