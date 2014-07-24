@@ -15,6 +15,7 @@
 #import "Samples.h"
 #include "Nickname.h"
 #include "Constants.h"
+#include "NotificationManager.h"
 
 #include "UUID.h"
 
@@ -585,6 +586,7 @@ static NSString *getNickname(CBPeripheral *peripheral) {
     } else {
         self.state = BTPulseTrackerConnectedState;
         [self.logger logVerbose:@"Peripheral UUID=%@", hex(peripheral.UUID)];
+        [NotificationManager cancelNotificationWithIdentifier:FLXIdentifierDeviceDisconnected];
         [peripheral discoverServices:nil];
     }
     [self stopScan];
@@ -620,6 +622,8 @@ static NSString *getNickname(CBPeripheral *peripheral) {
             self.activityUploader = nil;
         }
 
+        [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceDisconnected];
+        
         [self startScan];
     } else {
         [self.logger logVerbose:@"(Disconnected from %@)", getNickname(peripheral)];

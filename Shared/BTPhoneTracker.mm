@@ -16,6 +16,7 @@
 
 #include "Utils.h"
 #import "Constants.h"
+#import "NotificationManager.h"
 
 class Rate {
 private:
@@ -150,6 +151,7 @@ static UIApplication *app() {
 
 - (void)backgroundTaskDidExpire {
     NSLog(@"backgroundTaskDidExpire");
+    [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceBackgroundTaskExpired];
     [self endBackgroundTask];
 }
 
@@ -160,6 +162,9 @@ static UIApplication *app() {
 
 - (void)applicationWillTerminate {
     NSLog(@"applicationWillTerminate");
+
+    // TODO: only want this scheduled if we were logging at the time.
+    [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceApplicationTerminated];
 }
 
 - (void)applicationDidReceiveMemoryWarning {

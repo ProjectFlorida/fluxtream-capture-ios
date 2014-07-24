@@ -9,6 +9,7 @@
 #import "BTAppDelegate.h"
 #import "TestFlight.h"
 #import "Constants.h"
+#import "NotificationManager.h"
 
 @implementation BTAppDelegate
 
@@ -25,7 +26,14 @@
     _pulseTracker = [[BTPulseTracker alloc] init];
     _phoneTracker = [[BTPhoneTracker alloc] init];
     _photoUploader = [BTPhotoUploader sharedPhotoUploader];
-    
+
+    // iOS 8 only
+    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeAlert | UIUserNotificationTypeSound)
+                                                                                        categories:nil]];
+    }
+    [NotificationManager cancelAllNotifications];
+
     return YES;
 }
 
