@@ -58,27 +58,30 @@ static NSTimeInterval dataNotReceivedNotificationDelay      = 0.5 * 60;
 
     // by scheduling the notification inside each conditional we prevent scheduling unknown notification types.
     if ([identifier isEqualToString:FLXIdentifierDeviceApplicationTerminated]) {
-        notification.alertBody = NSLocalizedString(@"Fluxtream logging has stopped.", nil);
+        notification.alertBody = NSLocalizedString(@"Logging has stopped.", nil);
         notification.fireDate = date;
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
+    // this notification is of limited value if the other notifications are more directly relevant.
+    // ie. if the background task expired because the device connection was lost or the app
+    // stopped receiving data, then those are the conditions we really care about.
     if ([identifier isEqualToString:FLXIdentifierDeviceBackgroundTaskExpired]) {
-        notification.alertBody = NSLocalizedString(@"Fluxtream background task has expired.", nil);
+        notification.alertBody = NSLocalizedString(@"Background task has expired.", nil);
         notification.fireDate = date;
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
 
     if ([identifier isEqualToString:FLXIdentifierDeviceDisconnected]) {
-        notification.alertBody = NSLocalizedString(@"Fluxtream lost the device connection.", nil);
+        notification.alertBody = NSLocalizedString(@"Lost the device connection.", nil);
         notification.fireDate = (date) ? date : [NSDate dateWithTimeIntervalSinceNow:deviceDisconnectionNotificationDelay];
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
     }
 
     if ([identifier isEqualToString:FLXIdentifierDeviceDataNotReceived]) {
-        notification.alertBody = NSLocalizedString(@"Fluxtream has stopped receiving data.", nil);
+        notification.alertBody = NSLocalizedString(@"Stopped receiving data from the device.", nil);
         notification.fireDate = (date) ? date : [NSDate dateWithTimeIntervalSinceNow:dataNotReceivedNotificationDelay];
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         return;
