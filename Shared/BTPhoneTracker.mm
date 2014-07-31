@@ -151,7 +151,6 @@ static UIApplication *app() {
 
 - (void)backgroundTaskDidExpire {
     NSLog(@"backgroundTaskDidExpire");
-    [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceBackgroundTaskExpired];
     [self endBackgroundTask];
 }
 
