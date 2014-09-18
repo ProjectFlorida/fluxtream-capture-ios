@@ -101,6 +101,13 @@
             [self samples]->deleteUntilSequence(nextSequence);
             lastUploadTime = doubletime();
         }
+
+        if (result) {
+            lastResult = @"";
+        }
+        else {
+            lastResult = @"Unable to queue upload. Check console log.";
+        }
         return;
     }
 
