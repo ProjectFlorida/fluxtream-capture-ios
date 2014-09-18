@@ -35,6 +35,8 @@
 	<string>1.7.2a</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Periodically log the device location information. Location logging can be disabled in the Settings tab.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

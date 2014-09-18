@@ -10,6 +10,7 @@
 #import "TestFlight.h"
 #import "Constants.h"
 #import "NotificationManager.h"
+#import "BackgroundSessionManager.h"
 
 @implementation BTAppDelegate
 
@@ -113,8 +114,7 @@
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
-    // should there be a singleton manager for the background session?
-    [[FluxtreamUploaderObjc new] setBackgroundSessionCompletionHandler:completionHandler];
+    [[BackgroundSessionManager sharedInstance] setBackgroundSessionCompletionHandler:completionHandler];
 }
 
 - (void)savePhotosArray

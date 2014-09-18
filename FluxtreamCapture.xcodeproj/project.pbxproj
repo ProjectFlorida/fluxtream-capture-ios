@@ -31,6 +31,7 @@
 		01CAB405169DF2B80055FC28 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB403169DF2B80055FC28 /* 86-camera.png */; };
 		01CAB406169DF2B80055FC28 /* 86-camera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB404169DF2B80055FC28 /* 86-camera@2x.png */; };
 		2491DBC7196F87D300FA60DE /* NotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2491DBC6196F87D300FA60DE /* NotificationManager.m */; };
+		24A710E319CB688700F55EB2 /* BackgroundSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A710E219CB688700F55EB2 /* BackgroundSessionManager.m */; };
 		681662FB16861086006ADBA6 /* BTPhoneTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 681662FA16861086006ADBA6 /* BTPhoneTracker.mm */; };
 		681662FD168E9547006ADBA6 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 681662FC168E9547006ADBA6 /* CoreLocation.framework */; };
 		68348C5C1763901500A5CD42 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 68348C581763901500A5CD42 /* README.md */; };
@@ -106,6 +107,8 @@
 		01CAB404169DF2B80055FC28 /* 86-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera@2x.png"; sourceTree = "<group>"; };
 		2491DBC5196F87D300FA60DE /* NotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationManager.h; sourceTree = "<group>"; };
 		2491DBC6196F87D300FA60DE /* NotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationManager.m; sourceTree = "<group>"; };
+		24A710E119CB688700F55EB2 /* BackgroundSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundSessionManager.h; sourceTree = "<group>"; };
+		24A710E219CB688700F55EB2 /* BackgroundSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundSessionManager.m; sourceTree = "<group>"; };
 		681662F916861086006ADBA6 /* BTPhoneTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BTPhoneTracker.h; path = Shared/BTPhoneTracker.h; sourceTree = SOURCE_ROOT; };
 		681662FA16861086006ADBA6 /* BTPhoneTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BTPhoneTracker.mm; path = Shared/BTPhoneTracker.mm; sourceTree = SOURCE_ROOT; };
 		681662FC168E9547006ADBA6 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -298,6 +301,8 @@
 		C86C7F6F16331CA200D72C56 /* FluxtreamCapture */ = {
 			isa = PBXGroup;
 			children = (
+				24A710E119CB688700F55EB2 /* BackgroundSessionManager.h */,
+				24A710E219CB688700F55EB2 /* BackgroundSessionManager.m */,
 				2491DBC5196F87D300FA60DE /* NotificationManager.h */,
 				2491DBC6196F87D300FA60DE /* NotificationManager.m */,
 				683E7B0416824446005BB855 /* ChannelList.h */,
@@ -501,6 +506,7 @@
 				01C612D616C1450D00C8DB69 /* BTPhotoAsset.m in Sources */,
 				01A9A84C16DE62B600640AC0 /* BTPhotoDetailCommentViewController.m in Sources */,
 				015ADC4216F23D14008A6F5C /* BTPhotoImageUploadRequest.mm in Sources */,
+				24A710E319CB688700F55EB2 /* BackgroundSessionManager.m in Sources */,
 				01C0DBF516F2409C004AD52B /* BTPhotoMetadataUploadRequest.mm in Sources */,
 				01A7DA3D16F36F59004B7D47 /* BTPhotoMetadataRequest.mm in Sources */,
 				01958C031702085F00352687 /* BTCommentBadge.m in Sources */,

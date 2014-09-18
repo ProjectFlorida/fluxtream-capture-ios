@@ -13,13 +13,7 @@
 
 #include <algorithm>
 #include <libkern/OSAtomic.h>
-
-static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.background.session";
-
-@interface FluxtreamUploaderObjc()
-<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
-@property(nonatomic, copy) void(^backgroundSessionCompletionHandler)();
-@end
+#include "BackgroundSessionManager.h"
 
 @implementation FluxtreamUploaderObjc
 
@@ -43,60 +37,6 @@ static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.backgro
 -(void)dealloc {
     delete (Samples*)samplesPtr;
     samplesPtr = NULL;
-}
-
-#pragma mark - Background URL Session Handling
-// something seems off about all this...there is one background session (by apple design)
-// but many instances of this uploader class...so, how do we ensure that the correct delegate
-// is called, rather than just the first one that registered the static session object?
--(NSURLSession*)backgroundSession
-{
-    static NSURLSession *staticSession;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSURLSessionConfiguration *backgroundConfiguration =
-#if __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_7_1
-        [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:kBackgroundSessionIdentifier];
-#else
-        [NSURLSessionConfiguration backgroundSessionConfiguration:kBackgroundSessionIdentifier];
-#endif
-        backgroundConfiguration.discretionary  = YES;
-        backgroundConfiguration.allowsCellularAccess = YES;
-        
-        staticSession = [NSURLSession sessionWithConfiguration:backgroundConfiguration
-                                                      delegate:self
-                                                 delegateQueue:nil];
-    });
-    return staticSession;
-}
-
--(void)setBackgroundSessionCompletionHandler:(void (^)())completionHandler;
-{
-    self.backgroundSessionCompletionHandler = completionHandler;
-    [self backgroundSession];
-}
-
-#pragma mark - NSURLSessionDelegate
-- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
-{
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-    if (self.backgroundSessionCompletionHandler) {
-        self.backgroundSessionCompletionHandler();
-        self.backgroundSessionCompletionHandler = nil;
-    }
-}
-
-#pragma mark - NSURLSessionTaskDelegate
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;
-{
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-}
-
-#pragma mark - NSURLSessionDataDelegate
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
-{
-    NSString *responsePayload = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"%s: %@", __PRETTY_FUNCTION__, responsePayload);
 }
 
 
@@ -146,36 +86,25 @@ static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.backgro
     }
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    BOOL useBackgroundUpload = [defaults objectForKey:DEFAULTS_BACKGROUND_UPLOAD];
+    BOOL useBackgroundUpload = [defaults boolForKey:DEFAULTS_BACKGROUND_UPLOAD];
 
     if (useBackgroundUpload) {
         lastResult = @"Queuing samples for background upload...";
+        BOOL result = [[BackgroundSessionManager sharedInstance] queueUploadRequest:request withData:body];
+        (void)result;
 
-        // write json to a (temporary) file?
-        NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"samples.bin"];
-        NSURL *fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
-        [body writeToURL:fileURL atomically:YES];
+        // now what...do we *assume* that it will (eventually) succeed and move the sample sequence forward?
+        // do we set up delegate methods to tell this instance about auth challenges or whatnot?
 
-        NSURLSessionUploadTask *task = [[self backgroundSession] uploadTaskWithRequest:request
-                                                                              fromFile:fileURL];
-// all this needs to be handled in the delegate methods
-// it looks like we'll have to maintain state about the current file, uploadCount, nextSequence
-//                                      // completion handlers are not allowed for background sessions.
-//                                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-//                                          NSLog(@"upload response: %@, error - %@", response, [error localizedDescription]);
-//
-//                                          NSFileManager *fm = [NSFileManager defaultManager];
-//                                          NSError *fileError = nil;
-//                                          BOOL result = [fm removeItemAtURL:fileURL error:&fileError];
-//                                          if (!result) {
-//                                              NSLog(@"error removing temporary upload file: %@", [fileError localizedDescription]);
-//                                          }
-//
-//                                          // TODO: request completion / cleanup
-//                                      }];
-        [task resume];
+        // let's be optimistic...if the result is yes...then assume it will get there eventually.
+        if (uploadCount) {
+            [self samples]->deleteUntilSequence(nextSequence);
+            lastUploadTime = doubletime();
+        }
         return;
     }
+
+    // falling back on regular upload mechanism
 
     lastResult = @"Connecting to server for upload...";
 
@@ -186,7 +115,7 @@ static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.backgro
                      completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                          NSLog(@"%@ got %@", self.deviceNickname, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                          if (error) {
-                             NSLog(@"%@ got error code %d", self.deviceNickname, [error code]);
+                             NSLog(@"%@ got error code %ld", self.deviceNickname, (long)[error code]);
                              switch ([error code]) {
                                  case NSURLErrorUserCancelledAuthentication:
                                  case NSURLErrorUserAuthenticationRequired:
@@ -201,8 +130,8 @@ static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.backgro
                                      break;
                              }
                          } else {
-                             int statusCode = [(NSHTTPURLResponse*) response statusCode];
-                             NSLog(@"%@ success with HTTP status %d", self.deviceNickname, statusCode);
+                             NSInteger statusCode = [(NSHTTPURLResponse*) response statusCode];
+                             NSLog(@"%@ success with HTTP status %ld", self.deviceNickname, (long)statusCode);
                              lastResult = @"";
                              [[NSNotificationCenter defaultCenter] postNotificationName:BT_NOTIFICATION_UPLOAD_SUCCEEDED object:self];
                              if (uploadCount) {
