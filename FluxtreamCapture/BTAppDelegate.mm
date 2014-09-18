@@ -46,7 +46,8 @@
     [defaultValues setObject:@"" forKey:DEFAULTS_USERNAME];
     [defaultValues setObject:@"" forKey:DEFAULTS_PASSWORD];
     [defaultValues setObject:@"fluxtream.org" forKey:DEFAULTS_SERVER];
-    
+    [defaultValues setObject:[NSNumber numberWithBool:NO] forKey:DEFAULTS_BACKGROUND_UPLOAD];
+
     [defaultValues setObject:[NSNumber numberWithBool:YES] forKey:DEFAULTS_FIRSTRUN];
     
     [defaultValues setObject:[NSNumber numberWithBool:YES] forKey:DEFAULTS_RECORD_LOCATION];
@@ -108,6 +109,12 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [self savePhotosArray];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    // should there be a singleton manager for the background session?
+    [[FluxtreamUploaderObjc new] setBackgroundSessionCompletionHandler:completionHandler];
 }
 
 - (void)savePhotosArray

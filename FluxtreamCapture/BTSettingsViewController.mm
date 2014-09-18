@@ -37,6 +37,11 @@
     [_username setText:[defaults objectForKey:DEFAULTS_USERNAME]];
     [_password setText:[defaults objectForKey:DEFAULTS_PASSWORD]];
     [_server setText:[defaults objectForKey:DEFAULTS_SERVER]];
+
+    _backgroundSwitch = [[UISwitch alloc] init];
+    [_backgroundSwitch addTarget:self action:@selector(updateFromUI:) forControlEvents:UIControlEventValueChanged];
+    [_backgroundCell setAccessoryView:_backgroundSwitch];
+    [_backgroundSwitch setOn:[defaults boolForKey:DEFAULTS_BACKGROUND_UPLOAD]];
     
     _locationSwitch = [[UISwitch alloc] init];
     [_locationSwitch addTarget:self action:@selector(updateFromUI:) forControlEvents:UIControlEventValueChanged];
@@ -146,6 +151,7 @@
     [defaults setBool:_landscapeLeftUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_LANDSCAPE_LEFT];
     [defaults setBool:_landscapeRightUploadSwitch.isOn forKey:DEFAULTS_PHOTO_ORIENTATION_LANDSCAPE_RIGHT];
     [defaults setBool:_filterConnectionModeSwitch.isOn forKey:DEFAULTS_FILTER_DEVICES];
+    [defaults setBool:_backgroundSwitch.isOn forKey:DEFAULTS_BACKGROUND_UPLOAD];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     // this will only work if the uploaders exist already.

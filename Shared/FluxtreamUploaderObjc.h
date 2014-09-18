@@ -20,6 +20,9 @@
     unsigned char uploadScheduled;
 }
 
+-(void)setBackgroundSessionCompletionHandler:(void (^)())completionHandler;
+
+
 - (void) addChannel:(NSString*)name; // adds numeric channel
 - (void) addStringChannel:(NSString*)name;
 

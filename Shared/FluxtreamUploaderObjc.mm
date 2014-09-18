@@ -14,6 +14,13 @@
 #include <algorithm>
 #include <libkern/OSAtomic.h>
 
+static NSString *kBackgroundSessionIdentifier = @"com.fluxtream.uploader.background.session";
+
+@interface FluxtreamUploaderObjc()
+<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@property(nonatomic, copy) void(^backgroundSessionCompletionHandler)();
+@end
+
 @implementation FluxtreamUploaderObjc
 
 - (id)init
@@ -38,6 +45,62 @@
     samplesPtr = NULL;
 }
 
+#pragma mark - Background URL Session Handling
+// something seems off about all this...there is one background session (by apple design)
+// but many instances of this uploader class...so, how do we ensure that the correct delegate
+// is called, rather than just the first one that registered the static session object?
+-(NSURLSession*)backgroundSession
+{
+    static NSURLSession *staticSession;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSURLSessionConfiguration *backgroundConfiguration =
+#if __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_7_1
+        [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:kBackgroundSessionIdentifier];
+#else
+        [NSURLSessionConfiguration backgroundSessionConfiguration:kBackgroundSessionIdentifier];
+#endif
+        backgroundConfiguration.discretionary  = YES;
+        backgroundConfiguration.allowsCellularAccess = YES;
+        
+        staticSession = [NSURLSession sessionWithConfiguration:backgroundConfiguration
+                                                      delegate:self
+                                                 delegateQueue:nil];
+    });
+    return staticSession;
+}
+
+-(void)setBackgroundSessionCompletionHandler:(void (^)())completionHandler;
+{
+    self.backgroundSessionCompletionHandler = completionHandler;
+    [self backgroundSession];
+}
+
+#pragma mark - NSURLSessionDelegate
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+{
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+    if (self.backgroundSessionCompletionHandler) {
+        self.backgroundSessionCompletionHandler();
+        self.backgroundSessionCompletionHandler = nil;
+    }
+}
+
+#pragma mark - NSURLSessionTaskDelegate
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;
+{
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+#pragma mark - NSURLSessionDataDelegate
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+{
+    NSString *responsePayload = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"%s: %@", __PRETTY_FUNCTION__, responsePayload);
+}
+
+
+#pragma mark - Methods
 - (Samples*)samples
 {
     return (Samples*)samplesPtr;
@@ -74,16 +137,48 @@
     [request setHTTPBody:body];
 
     NSLog(@"%@ about to post %ld samples", self.deviceNickname, uploadCount);
-    
-    lastResult = @"Connecting to server for upload...";
-    
+
     // Delete cookies to force authentication from scratch each time
     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     NSArray *cookies = [cookieStorage cookies];
     for (NSHTTPCookie *cookie in cookies) {
         [cookieStorage deleteCookie:cookie];
     }
-    
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL useBackgroundUpload = [defaults objectForKey:DEFAULTS_BACKGROUND_UPLOAD];
+
+    if (useBackgroundUpload) {
+        lastResult = @"Queuing samples for background upload...";
+
+        // write json to a (temporary) file?
+        NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"samples.bin"];
+        NSURL *fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
+        [body writeToURL:fileURL atomically:YES];
+
+        NSURLSessionUploadTask *task = [[self backgroundSession] uploadTaskWithRequest:request
+                                                                              fromFile:fileURL];
+// all this needs to be handled in the delegate methods
+// it looks like we'll have to maintain state about the current file, uploadCount, nextSequence
+//                                      // completion handlers are not allowed for background sessions.
+//                                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+//                                          NSLog(@"upload response: %@, error - %@", response, [error localizedDescription]);
+//
+//                                          NSFileManager *fm = [NSFileManager defaultManager];
+//                                          NSError *fileError = nil;
+//                                          BOOL result = [fm removeItemAtURL:fileURL error:&fileError];
+//                                          if (!result) {
+//                                              NSLog(@"error removing temporary upload file: %@", [fileError localizedDescription]);
+//                                          }
+//
+//                                          // TODO: request completion / cleanup
+//                                      }];
+        [task resume];
+        return;
+    }
+
+    lastResult = @"Connecting to server for upload...";
+
     // to get HTTP status on error, consider something like
     // initWithRequest:delegate: and didReceiveResponse
     [NSURLConnection sendAsynchronousRequest:request
