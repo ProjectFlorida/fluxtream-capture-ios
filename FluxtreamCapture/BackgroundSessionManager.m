@@ -143,6 +143,15 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
 
     if (error) {
         NSLog(@"got error code %ld", (long)[error code]);
+
+        // from Apple docs:
+        /* 
+         If the task failed, most apps should retry the request until either the user cancels the download 
+         or the server returns an error indicating that the request will never succeed. 
+         Your app should not retry immediately, however. Instead, it should use reachability APIs to 
+         determine whether the server is reachable, and should make a new request only when it 
+         receives a notification that reachability has changed.
+        */
         switch ([error code]) {
             case NSURLErrorUserCancelledAuthentication:
             case NSURLErrorUserAuthenticationRequired:
