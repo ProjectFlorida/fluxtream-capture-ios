@@ -130,6 +130,13 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;
 {
+    // register a background task to ensure that we can delete the file.
+    __block UIBackgroundTaskIdentifier backgroundTask = UIBackgroundTaskInvalid;
+    backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
+        backgroundTask = UIBackgroundTaskInvalid;
+    }];
+
     NSInteger statusCode = [(NSHTTPURLResponse*)task.response statusCode];
 
     // clean up the temporary file after looking up the task identifier
@@ -140,6 +147,9 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
     if (taskFileName) {
         fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:taskFileName]];
     }
+
+    NSString *batchId = (NSString*)[NSURLProtocol propertyForKey:@"kBatchId" inRequest:task.originalRequest];
+    NSLog(@"request batch id: %@", (batchId) ? batchId : @"batch id property missing");
 
     if (error) {
         NSLog(@"got error code %ld", (long)[error code]);
@@ -189,6 +199,9 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
         // regardless of what has happened...the task is done...remove it from the dictionary
         [self.taskDictionary removeObjectForKey:taskKey];
         [self updateTaskDictionary];
+
+        [[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
+        backgroundTask = UIBackgroundTaskInvalid;
     });
 
     NSLog(@"%s", __PRETTY_FUNCTION__);
@@ -227,13 +240,24 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
 -(BOOL)queueUploadRequest:(NSURLRequest*)request withData:(NSData*)payload;
 {
     // write json to a (temporary) file?
-    NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"samples.bin"];
+    NSString *uidString = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *fileName = [NSString stringWithFormat:@"%@_%@", uidString, @"samples.bin"];
     NSURL *fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
     BOOL status = [payload writeToURL:fileURL atomically:YES];
     if(!status) { return NO; }
 
-    NSURLSessionUploadTask *task = [[self backgroundSession] uploadTaskWithRequest:request
+    NSMutableURLRequest *mutableRequest = [request mutableCopy];
+
+    // can we use the URLProtocol class method to attach additional data?
+    // this will be carried along by the task.
+    [NSURLProtocol setProperty:uidString forKey:@"kBatchId" inRequest:mutableRequest];
+
+    NSURLSessionUploadTask *task = [[self backgroundSession] uploadTaskWithRequest:mutableRequest
                                                                           fromFile:fileURL];
+    // maybe we don't need to rely on the taskDictionary if we can embed the identifier here?
+    // although, this is intended to be a user-facing string, according to docs.
+    task.taskDescription = uidString;
+
 
     dispatch_async(dispatch_get_main_queue(), ^{
         // TODO: store this task (identifier), the file handle, and optionally any follow-up work.
