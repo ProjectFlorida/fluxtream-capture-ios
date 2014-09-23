@@ -11,7 +11,7 @@
 static NSString *kBackgroundSessionIdentifier = @"org.bodytrack.fluxtream-capture.background.session";
 
 // presumed to be in the Caches directory
-static NSString *kTaskStateDictionaryFileName = @"org.bodytrack.fluxtream-capture.background.task.state.bin";
+static NSString *kTaskStateDictionaryFileName = @"org.bodytrack.fluxtream-capture.background.task.state.plist";
 
 // don't want to provide a full url to risk modification by external parties
 // we will *only* modify data in the tmp directory
