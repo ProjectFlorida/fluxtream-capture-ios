@@ -17,6 +17,7 @@ static NSString *kTaskStateDictionaryFileName = @"org.bodytrack.fluxtream-captur
 // we will *only* modify data in the tmp directory
 static NSString *kTaskTemporaryFileNameKey = @"kTaskTemporaryFileNameKey";
 static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
+static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
 
 
 @interface BackgroundSessionManager()
@@ -148,7 +149,7 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
         fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:taskFileName]];
     }
 
-    NSString *batchId = (NSString*)[NSURLProtocol propertyForKey:@"kBatchId" inRequest:task.originalRequest];
+    NSString *batchId = (NSString*)[NSURLProtocol propertyForKey:kTaskBatchIdKey inRequest:task.originalRequest];
     NSLog(@"request batch id: %@", (batchId) ? batchId : @"batch id property missing");
 
     if (error) {
@@ -250,7 +251,7 @@ static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
 
     // can we use the URLProtocol class method to attach additional data?
     // this will be carried along by the task.
-    [NSURLProtocol setProperty:uidString forKey:@"kBatchId" inRequest:mutableRequest];
+    [NSURLProtocol setProperty:uidString forKey:kTaskBatchIdKey inRequest:mutableRequest];
 
     NSURLSessionUploadTask *task = [[self backgroundSession] uploadTaskWithRequest:mutableRequest
                                                                           fromFile:fileURL];
