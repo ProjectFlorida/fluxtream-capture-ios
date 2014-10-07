@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="4">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="14A361c" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="4">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
-        <!--First View Controller - Heart Rate-->
+        <!--Heart Rate-->
         <scene sceneID="11">
             <objects>
                 <viewController title="Heart Rate" id="2" customClass="BTFirstViewController" sceneMemberID="viewController">
@@ -110,7 +110,6 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" image="29-heart.png" id="H5U-zD-mqU">
-                                <rect key="frame" x="0.0" y="424" width="0.0" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </imageView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" id="mOn-qt-g8a">
@@ -168,7 +167,7 @@
             </objects>
             <point key="canvasLocation" x="108" y="478"/>
         </scene>
-        <!--Navigation Controller - Camera-->
+        <!--Camera-->
         <scene sceneID="TkU-0K-CwR">
             <objects>
                 <navigationController definesPresentationContext="YES" id="MY8-mu-CQT" sceneMemberID="viewController">
@@ -176,7 +175,6 @@
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" prompted="NO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" id="myY-je-FIn">
-                        <rect key="frame" x="0.0" y="-44" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -187,7 +185,7 @@
             </objects>
             <point key="canvasLocation" x="661" y="478"/>
         </scene>
-        <!--Photos View Controller - Camera Roll-->
+        <!--Camera Roll-->
         <scene sceneID="FlM-vf-IVg">
             <objects>
                 <viewController id="mWQ-7C-rf0" customClass="BTPhotosViewController" sceneMemberID="viewController">
@@ -236,7 +234,7 @@
             </objects>
             <point key="canvasLocation" x="1111" y="481"/>
         </scene>
-        <!--Photo Detail View Controller - Photo Detail-->
+        <!--Photo Detail-->
         <scene sceneID="eeu-xn-RzZ">
             <objects>
                 <viewController id="P70-f2-fx9" customClass="BTPhotoDetailViewController" sceneMemberID="viewController">
@@ -280,7 +278,7 @@
             </objects>
             <point key="canvasLocation" x="1556" y="481"/>
         </scene>
-        <!--Photo Detail Comment View Controller - Comment-->
+        <!--Comment-->
         <scene sceneID="CXm-Lr-v18">
             <objects>
                 <viewController id="dYU-cf-oXV" customClass="BTPhotoDetailCommentViewController" sceneMemberID="viewController">
@@ -351,14 +349,13 @@
             </objects>
             <point key="canvasLocation" x="2003" y="478"/>
         </scene>
-        <!--Navigation Controller - Settings-->
+        <!--Settings-->
         <scene sceneID="u2h-fT-CEk">
             <objects>
                 <navigationController definesPresentationContext="YES" id="MZd-Yf-bCo" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Settings" image="19-gear.png" id="lZi-th-OeZ"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" prompted="NO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" id="ZLh-l4-7lJ">
-                        <rect key="frame" x="0.0" y="-44" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -369,7 +366,7 @@
             </objects>
             <point key="canvasLocation" x="653" y="1129"/>
         </scene>
-        <!--Settings View Controller - Settings-->
+        <!--Settings-->
         <scene sceneID="ZKj-e6-cyw">
             <objects>
                 <tableViewController id="SeP-4O-L8W" customClass="BTSettingsViewController" sceneMemberID="viewController">
@@ -452,6 +449,23 @@
                                                         <outlet property="delegate" destination="SeP-4O-L8W" id="igh-q2-rwr"/>
                                                     </connections>
                                                 </textField>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="qUc-PI-Ef4" userLabel="Background cell">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="qUc-PI-Ef4" id="dg5-q1-3q6">
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Background Upload" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="qln-Zx-zcR">
+                                                    <rect key="frame" x="10" y="11" width="158" height="21"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </label>
                                             </subviews>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -647,6 +661,7 @@
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="appStatsCell" destination="8w7-4L-8VR" id="pQt-Bi-lLF"/>
+                        <outlet property="backgroundCell" destination="qUc-PI-Ef4" id="eK6-Nn-GsU"/>
                         <outlet property="filterConnectionModeCell" destination="bLA-Cc-SKb" id="blN-PF-u3X"/>
                         <outlet property="heartbeatSoundCell" destination="y3N-AB-rUr" id="LPl-nO-7Kg"/>
                         <outlet property="landscapeLeftCell" destination="KeB-rW-Ect" id="8W0-Jn-3t0"/>
@@ -701,7 +716,7 @@
             </objects>
             <point key="canvasLocation" x="642" y="-914"/>
         </scene>
-        <!--Navigation Controller - Heart Rate-->
+        <!--Heart Rate-->
         <scene sceneID="3Az-jA-XU7">
             <objects>
                 <navigationController id="xdf-dL-xxY" sceneMemberID="viewController">

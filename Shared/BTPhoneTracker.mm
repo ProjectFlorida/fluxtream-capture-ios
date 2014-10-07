@@ -401,6 +401,13 @@ static const char *authorizationStatusDescription(CLAuthorizationStatus status) 
     self.locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
     [self startCapturingLocation];
     NSLog(@"initLocationCapture authorization status: %s", authorizationStatusDescription([CLLocationManager authorizationStatus]));
+
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        // iOS 8+ only
+        if([self.locationManager respondsToSelector:NSSelectorFromString(@"requestAlwaysAuthorization")]) {
+            [self.locationManager requestAlwaysAuthorization];
+        }
+    }
     
     double updateInterval = 9*60; // seconds
     self.locationCaptureTimer = [NSTimer scheduledTimerWithTimeInterval:updateInterval target:self selector:@selector(startCapturingLocation) userInfo:nil repeats:YES];

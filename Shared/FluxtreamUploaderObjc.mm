@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <libkern/OSAtomic.h>
+#include "BackgroundSessionManager.h"
 
 @implementation FluxtreamUploaderObjc
 
@@ -38,6 +39,8 @@
     samplesPtr = NULL;
 }
 
+
+#pragma mark - Methods
 - (Samples*)samples
 {
     return (Samples*)samplesPtr;
@@ -74,16 +77,44 @@
     [request setHTTPBody:body];
 
     NSLog(@"%@ about to post %ld samples", self.deviceNickname, uploadCount);
-    
-    lastResult = @"Connecting to server for upload...";
-    
+
     // Delete cookies to force authentication from scratch each time
     NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     NSArray *cookies = [cookieStorage cookies];
     for (NSHTTPCookie *cookie in cookies) {
         [cookieStorage deleteCookie:cookie];
     }
-    
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL useBackgroundUpload = [defaults boolForKey:DEFAULTS_BACKGROUND_UPLOAD];
+
+    if (useBackgroundUpload) {
+        lastResult = @"Queuing samples for background upload...";
+        BOOL result = [[BackgroundSessionManager sharedInstance] queueUploadRequest:request withData:body];
+        (void)result;
+
+        // now what...do we *assume* that it will (eventually) succeed and move the sample sequence forward?
+        // do we set up delegate methods to tell this instance about auth challenges or whatnot?
+
+        // let's be optimistic...if the result is yes...then assume it will get there eventually.
+        if (uploadCount) {
+            [self samples]->deleteUntilSequence(nextSequence);
+            lastUploadTime = doubletime();
+        }
+
+        if (result) {
+            lastResult = @"";
+        }
+        else {
+            lastResult = @"Unable to queue upload. Check console log.";
+        }
+        return;
+    }
+
+    // falling back on regular upload mechanism
+
+    lastResult = @"Connecting to server for upload...";
+
     // to get HTTP status on error, consider something like
     // initWithRequest:delegate: and didReceiveResponse
     [NSURLConnection sendAsynchronousRequest:request
@@ -91,7 +122,7 @@
                      completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                          NSLog(@"%@ got %@", self.deviceNickname, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                          if (error) {
-                             NSLog(@"%@ got error code %d", self.deviceNickname, [error code]);
+                             NSLog(@"%@ got error code %ld", self.deviceNickname, (long)[error code]);
                              switch ([error code]) {
                                  case NSURLErrorUserCancelledAuthentication:
                                  case NSURLErrorUserAuthenticationRequired:
@@ -106,8 +137,8 @@
                                      break;
                              }
                          } else {
-                             int statusCode = [(NSHTTPURLResponse*) response statusCode];
-                             NSLog(@"%@ success with HTTP status %d", self.deviceNickname, statusCode);
+                             NSInteger statusCode = [(NSHTTPURLResponse*) response statusCode];
+                             NSLog(@"%@ success with HTTP status %ld", self.deviceNickname, (long)statusCode);
                              lastResult = @"";
                              [[NSNotificationCenter defaultCenter] postNotificationName:BT_NOTIFICATION_UPLOAD_SUCCEEDED object:self];
                              if (uploadCount) {

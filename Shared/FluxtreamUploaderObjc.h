@@ -20,6 +20,7 @@
     unsigned char uploadScheduled;
 }
 
+
 - (void) addChannel:(NSString*)name; // adds numeric channel
 - (void) addStringChannel:(NSString*)name;
 

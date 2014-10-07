@@ -18,6 +18,9 @@
 @property (strong, nonatomic) IBOutlet UITextField *password;
 @property (strong, nonatomic) IBOutlet UITableViewCell *serverCell;
 @property (strong, nonatomic) IBOutlet UITextField *server;
+@property (weak, nonatomic)   IBOutlet UITableViewCell *backgroundCell;
+@property (strong, nonatomic) UISwitch *backgroundSwitch;
+
 
 // Capture
 @property (strong, nonatomic) IBOutlet UITableViewCell *locationCell;

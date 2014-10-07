@@ -11,6 +11,7 @@
 #define DEFAULTS_HEARTBEAT_SOUND @"bodytrack_enable_heartbeat_sound"
 #define DEFAULTS_FILTER_DEVICES @"bodytrack_filter_heartbeat_devices"
 #define DEFAULTS_CONNECT_UUID @"bodytrack_connect_uuid"
+#define DEFAULTS_BACKGROUND_UPLOAD @"bodytrack_background_session_upload"
 
 #define DEFAULTS_PHOTO_ORIENTATION_PORTRAIT @"bodytrack_photo_upload_portrait"
 #define DEFAULTS_PHOTO_ORIENTATION_UPSIDE_DOWN @"bodytrack_photo_upload_upside_down"
