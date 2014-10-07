@@ -8,16 +8,20 @@
 
 #import "BackgroundSessionManager.h"
 
-static NSString *kBackgroundSessionIdentifier = @"org.bodytrack.fluxtream-capture.background.session";
+NSString * const kBackgroundSessionNotificationUploadAuthFailed = @"kBackgroundSessionNotificationUploadAuthFailed";
+NSString * const kBackgroundSessionNotificationUploadNetworkError = @"kBackgroundSessionNotificationUploadNetworkError";
+NSString * const kBackgroundSessionNotificationUploadSucceeded = @"kBackgroundSessionNotificationUploadSucceeded";
+
+NSString * const kBackgroundSessionIdentifier = @"org.bodytrack.fluxtream-capture.background.session";
 
 // presumed to be in the Caches directory
-static NSString *kTaskStateDictionaryFileName = @"org.bodytrack.fluxtream-capture.background.task.state.plist";
+NSString * const kTaskStateDictionaryFileName = @"org.bodytrack.fluxtream-capture.background.task.state.plist";
 
 // don't want to provide a full url to risk modification by external parties
 // we will *only* modify data in the tmp directory
-static NSString *kTaskTemporaryFileNameKey = @"kTaskTemporaryFileNameKey";
-static NSString *kTaskResponseDataKey = @"kTaskResponseDataKey";
-static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
+NSString * const kTaskTemporaryFileNameKey = @"kTaskTemporaryFileNameKey";
+NSString * const kTaskResponseDataKey = @"kTaskResponseDataKey";
+NSString * const kTaskBatchIdKey = @"kTaskBatchIdKey";
 
 
 @interface BackgroundSessionManager()
@@ -83,9 +87,6 @@ static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
 }
 
 #pragma mark - Background URL Session Handling
-// something seems off about all this...there is one background session (by apple design)
-// but many instances of this uploader class...so, how do we ensure that the correct delegate
-// is called, rather than just the first one that registered the static session object?
 -(NSURLSession*)backgroundSession
 {
     static NSURLSession *staticSession;
@@ -146,43 +147,42 @@ static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
     NSString *taskFileName = taskMetaData[kTaskTemporaryFileNameKey];
     NSURL *fileURL = nil;
     if (taskFileName) {
-        fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:taskFileName]];
+        NSString *cachesDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+        fileURL = [NSURL fileURLWithPath:[cachesDirectory stringByAppendingPathComponent:taskFileName]];
     }
 
     NSString *batchId = (NSString*)[NSURLProtocol propertyForKey:kTaskBatchIdKey inRequest:task.originalRequest];
     NSLog(@"request batch id: %@", (batchId) ? batchId : @"batch id property missing");
 
+    NSDictionary *userInfo = (batchId) ? @{kTaskBatchIdKey:batchId} : nil;
+
     if (error) {
         NSLog(@"got error code %ld", (long)[error code]);
 
         // from Apple docs:
-        /* 
-         If the task failed, most apps should retry the request until either the user cancels the download 
-         or the server returns an error indicating that the request will never succeed. 
-         Your app should not retry immediately, however. Instead, it should use reachability APIs to 
-         determine whether the server is reachable, and should make a new request only when it 
+        /*
+         If the task failed, most apps should retry the request until either the user cancels the download
+         or the server returns an error indicating that the request will never succeed.
+         Your app should not retry immediately, however. Instead, it should use reachability APIs to
+         determine whether the server is reachable, and should make a new request only when it
          receives a notification that reachability has changed.
         */
         switch ([error code]) {
-            case NSURLErrorUserCancelledAuthentication:
+            case NSURLErrorUserCancelledAuthentication: // we get the 'cancelled' error when the application is force terminated by the user.
             case NSURLErrorUserAuthenticationRequired:
                 NSLog(@"Authentication error");
-//                [[NSNotificationCenter defaultCenter] postNotificationName:BT_NOTIFICATION_UPLOAD_AUTH_FAILED object:self];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadAuthFailed object:nil userInfo:userInfo];
                 break;
             default:
                 NSLog(@"Unknown server error");
-//                [[NSNotificationCenter defaultCenter] postNotificationName:BT_NOTIFICATION_UPLOAD_NETWORK_ERROR object:self];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadNetworkError object:nil userInfo:userInfo];
                 // TODO: try to re-queue this request?
                 break;
         }
     }
     else {
         NSLog(@"success with HTTP status %ld", (long)statusCode);
-//        [[NSNotificationCenter defaultCenter] postNotificationName:BT_NOTIFICATION_UPLOAD_SUCCEEDED object:self];
-
-        // and then? tell any callers about the result?
-        // this only matters if the app has not crashed or been terminated and there is still an
-        // in-memory samples 'database' to update.
+        [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadSucceeded object:nil userInfo:userInfo];
     }
 
     // I think we always want to clean up...regardless if there was an error.
@@ -243,13 +243,13 @@ static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
     // write json to a (temporary) file?
     NSString *uidString = [[NSProcessInfo processInfo] globallyUniqueString];
     NSString *fileName = [NSString stringWithFormat:@"%@_%@", uidString, @"samples.bin"];
-    NSURL *fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
+    NSString *cachesDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+    NSURL *fileURL = [NSURL fileURLWithPath:[cachesDirectory stringByAppendingPathComponent:fileName]];
     BOOL status = [payload writeToURL:fileURL atomically:YES];
     if(!status) { return NO; }
 
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
 
-    // can we use the URLProtocol class method to attach additional data?
     // this will be carried along by the task.
     [NSURLProtocol setProperty:uidString forKey:kTaskBatchIdKey inRequest:mutableRequest];
 
@@ -261,12 +261,11 @@ static NSString *kTaskBatchIdKey = @"kTaskBatchIdKey";
 
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        // TODO: store this task (identifier), the file handle, and optionally any follow-up work.
         [self.taskDictionary setObject:@{kTaskTemporaryFileNameKey: fileName} forKey:[@(task.taskIdentifier) stringValue]];
         [self updateTaskDictionary];
     });
 
-    // does this resume have to happen *after* the taskDictionary has been modified?
+    // does this resume have to happen *after* the taskDictionary has been modified? should we move the -resume into the async block above?
     [task resume];
     return YES;
 }
