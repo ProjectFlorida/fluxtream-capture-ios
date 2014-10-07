@@ -403,10 +403,12 @@ static const char *authorizationStatusDescription(CLAuthorizationStatus status) 
     NSLog(@"initLocationCapture authorization status: %s", authorizationStatusDescription([CLLocationManager authorizationStatus]));
 
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
-        // iOS 8+ only
+        // iOS 8+ only, but also supporting compilation with iOS 7 SDK
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 80000
         if([self.locationManager respondsToSelector:NSSelectorFromString(@"requestAlwaysAuthorization")]) {
             [self.locationManager requestAlwaysAuthorization];
         }
+#endif
     }
     
     double updateInterval = 9*60; // seconds
