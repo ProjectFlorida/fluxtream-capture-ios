@@ -476,7 +476,21 @@ static NSString *getNickname(CBPeripheral *peripheral) {
 - (void) centralManagerDidUpdateState:(CBCentralManager *)central
 {
     BOOL result = [self checkBluetooth];
-    if (result && self.autoConnect) {
+
+    // this is a bit of a hack. if we have (had) a peripheral, and the radio was powered off
+    // the centralManager does not seem to call -didDisconnectPeripheral although the peripheral
+    // state is "disconnected". because this app seems to have a bunch of logic in the
+    // -didDisconnectPeripheral callback, we can call it here to emulate a proper disconnection
+    // then discard our stored peripheral so that scanning and reconnection will restart as
+    // expected if/when the bluetooth radio is powered up again.
+    if (!result) {
+        if(self.peripheral) {
+            [self centralManager:central didDisconnectPeripheral:self.peripheral error:nil];
+            self.peripheral = nil;
+        }
+        [self setState:BTPulseTrackerStoppedState];
+    }
+    else if (self.autoConnect) {
         [self tryConnect];
     }
 }
@@ -623,7 +637,7 @@ static NSString *getNickname(CBPeripheral *peripheral) {
         }
 
         [NotificationManager scheduleNotificationWithIdentifier:FLXIdentifierDeviceDisconnected];
-        
+
         [self startScan];
     } else {
         [self.logger logVerbose:@"(Disconnected from %@)", getNickname(peripheral)];
