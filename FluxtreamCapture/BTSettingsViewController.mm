@@ -14,6 +14,7 @@
 
 #define kPhotosToBeUploaded 1
 #define kServerWillChange   2
+#define kUsernameIsEmailAddress 3
 
 @interface BTSettingsViewController ()
 
@@ -223,6 +224,24 @@
     [message show];
 }
 
+- (void)usernameContainsEmailAddress;
+{
+    static BOOL hasBeenPresented = NO;
+    if (hasBeenPresented) {
+        return;
+    }
+
+    NSString *message = @"The username is usually not an e-mail address. Please confirm the username in your profile at fluxtream.com";
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Fluxtream Username"
+                                                    message:message
+                                                   delegate:nil
+                                          cancelButtonTitle:nil
+                                          otherButtonTitles:@"OK", nil];
+    alert.tag = kUsernameIsEmailAddress;
+    [alert show];
+    hasBeenPresented = YES;
+}
+
 #pragma mark - Photo uploader notifications
 
 - (void)photosToBeUploaded:(NSNotification *)notification
@@ -266,7 +285,9 @@
                 // leave it
                 [_server resignFirstResponder];
             }
-            
+
+        case kUsernameIsEmailAddress:
+            // NOP
         default:
             break;
     }
@@ -274,12 +295,40 @@
 }
 
 
-#pragma mark - UITextField delegate methods
+#pragma mark - UITextFieldDelegate methods
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [textField resignFirstResponder];
     [self updateFromUI:self];
     return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if ([textField isEqual:_username]) {
+        NSString *replacementString = [textField text];
+        BOOL result = [self containsEmailAddress:replacementString];
+        if (result) {
+            NSLog(@"e-mail address detected in: %@", replacementString);
+            [self usernameContainsEmailAddress];
+        }
+    }
+}
+
+// adapted from: http://www.cocoawithlove.com/2009/06/verifying-that-string-is-email-address.html
+- (BOOL)containsEmailAddress:(NSString*)haystack;
+{
+    static NSString * const emailRegEx =
+    @"(?:[a-z0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[a-z0-9!#$%\\&'*+/=?\\^_`{|}"
+    @"~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\"
+    @"x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-"
+    @"z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5"
+    @"]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-"
+    @"9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21"
+    @"-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+
+    static NSPredicate * const regExPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegEx];
+
+    return [regExPredicate evaluateWithObject:haystack];
 }
 
 @end
