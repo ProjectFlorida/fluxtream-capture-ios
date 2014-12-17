@@ -170,7 +170,7 @@ NSString * const kTaskBatchIdKey = @"kTaskBatchIdKey";
         switch ([error code]) {
             case NSURLErrorUserCancelledAuthentication: // we get the 'cancelled' error when the application is force terminated by the user.
             case NSURLErrorUserAuthenticationRequired:
-                NSLog(@"Authentication error");
+                NSLog(@"User cancelled or authentication error");
                 [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadAuthFailed object:nil userInfo:userInfo];
                 break;
             default:
@@ -180,13 +180,17 @@ NSString * const kTaskBatchIdKey = @"kTaskBatchIdKey";
                 break;
         }
     }
+    else if(statusCode == 401) {
+        NSLog(@"Authentication error");
+        [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadAuthFailed object:nil userInfo:userInfo];
+    }
     else {
         NSLog(@"success with HTTP status %ld", (long)statusCode);
         [[NSNotificationCenter defaultCenter] postNotificationName:kBackgroundSessionNotificationUploadSucceeded object:nil userInfo:userInfo];
     }
 
-    // I think we always want to clean up...regardless if there was an error.
-    // if we get an authentication challenge...I believe that a different callback will occur.
+    // I think we always want to clean up...regardless if there was an error. (#rc this may not be true)
+    // if we get a server authentication challenge...I believe that a different callback will occur (which seems different than an unauthorized response)
     if (fileURL) {
         NSFileManager *fm = [NSFileManager defaultManager];
         NSError *fileError = nil;

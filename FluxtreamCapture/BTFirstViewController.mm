@@ -15,10 +15,14 @@
 #include "Constants.h"
 
 #import "BTAppDelegate.h"
+#import "BackgroundSessionManager.h"
 
 @interface BTFirstViewController ()
+<UIAlertViewDelegate>
+
 @property (assign) SystemSoundID heartbeatS1Sound;
 @property (assign) SystemSoundID heartbeatS2Sound;
+@property (nonatomic) UIAlertView *uploadAuthAlertView;
 
 - (void)onPulse:(NSNotification *)note;
 - (void)onHRDataReceived:(NSNotification *)note;
@@ -83,6 +87,19 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onPulse:) name:BT_NOTIFICATION_PULSE object:[appDelegate pulseTracker]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onHRDataReceived:) name:BT_NOTIFICATION_HR_DATA object:[appDelegate pulseTracker]];
 
+    [[NSNotificationCenter defaultCenter] addObserverForName:kBackgroundSessionNotificationUploadAuthFailed
+                                                      object:nil
+                                                       queue:[NSOperationQueue mainQueue]
+                                                  usingBlock:^(NSNotification *note) {
+                                                      if (![self uploadAuthAlertView]) {
+                                                          self.uploadAuthAlertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Upload error",nil)
+                                                                                                                message:NSLocalizedString(@"Background upload authentication failed. Please check your account credentials in the Settings tab.",nil)
+                                                                                                               delegate:self
+                                                                                                      cancelButtonTitle:nil
+                                                                                                      otherButtonTitles:NSLocalizedString(@"Dismiss",nil), nil];
+                                                          [self.uploadAuthAlertView show];
+                                                      }
+                                                  }];
     // TODO(rsargent) subscribe to auth failed, queued data
     // pop up alert with UIAlertView
     
@@ -116,6 +133,15 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.uploadAuthAlertView = nil;
+}
+
+#pragma mark - Alert delegate
+-(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;
+{
+    if ([alertView isEqual:self.uploadAuthAlertView]) {
+        self.uploadAuthAlertView = nil;
+    }
 }
 
 #pragma mark - Pulse display
