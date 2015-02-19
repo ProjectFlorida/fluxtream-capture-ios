@@ -6,8 +6,9 @@
 //  Copyright (c) 2012 BodyTrack. All rights reserved.
 //
 
+#import <Crashlytics/Crashlytics.h>
+
 #import "BTAppDelegate.h"
-#import "TestFlight.h"
 #import "Constants.h"
 #import "NotificationManager.h"
 #import "BackgroundSessionManager.h"
@@ -16,11 +17,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    //[TestFlight setDeviceIdentifier:[[UIDevice currentDevice] uniqueIdentifier]];
-#pragma clang diagnostic pop
-    //[TestFlight takeOff:@"f9c4aa0a-550e-4c8c-bdce-1b9dfa6b6f1b"];
+    [Crashlytics startWithAPIKey:@"***API_KEY***"];
 
     [self registerDefaults];
 

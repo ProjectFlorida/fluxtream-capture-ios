@@ -30,13 +30,11 @@
 		01CAB402169DEFB80055FC28 /* 29-heart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB400169DEFB80055FC28 /* 29-heart@2x.png */; };
 		01CAB405169DF2B80055FC28 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB403169DF2B80055FC28 /* 86-camera.png */; };
 		01CAB406169DF2B80055FC28 /* 86-camera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01CAB404169DF2B80055FC28 /* 86-camera@2x.png */; };
+		2427D0AE1A967237007CCEC7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2427D0AD1A967237007CCEC7 /* Crashlytics.framework */; };
 		2491DBC7196F87D300FA60DE /* NotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2491DBC6196F87D300FA60DE /* NotificationManager.m */; };
 		24A710E319CB688700F55EB2 /* BackgroundSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A710E219CB688700F55EB2 /* BackgroundSessionManager.m */; };
 		681662FB16861086006ADBA6 /* BTPhoneTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 681662FA16861086006ADBA6 /* BTPhoneTracker.mm */; };
 		681662FD168E9547006ADBA6 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 681662FC168E9547006ADBA6 /* CoreLocation.framework */; };
-		68348C5C1763901500A5CD42 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 68348C581763901500A5CD42 /* README.md */; };
-		68348C5D1763901500A5CD42 /* release_notes.md in Resources */ = {isa = PBXBuildFile; fileRef = 68348C591763901500A5CD42 /* release_notes.md */; };
-		68348C5E1763901500A5CD42 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68348C5B1763901500A5CD42 /* libTestFlight.a */; };
 		683E7B0616824446005BB855 /* ChannelList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 683E7B0516824446005BB855 /* ChannelList.cpp */; };
 		683F861D1634AF2C006A35FE /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 683F861C1634AF2C006A35FE /* libz.dylib */; };
 		684A4A87163C27A400C6513B /* UUID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 684A4A85163C27A300C6513B /* UUID.cpp */; };
@@ -105,6 +103,7 @@
 		01CAB400169DEFB80055FC28 /* 29-heart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "29-heart@2x.png"; sourceTree = "<group>"; };
 		01CAB403169DF2B80055FC28 /* 86-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera.png"; sourceTree = "<group>"; };
 		01CAB404169DF2B80055FC28 /* 86-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera@2x.png"; sourceTree = "<group>"; };
+		2427D0AD1A967237007CCEC7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		2491DBC5196F87D300FA60DE /* NotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationManager.h; sourceTree = "<group>"; };
 		2491DBC6196F87D300FA60DE /* NotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationManager.m; sourceTree = "<group>"; };
 		24A710E119CB688700F55EB2 /* BackgroundSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundSessionManager.h; sourceTree = "<group>"; };
@@ -112,10 +111,6 @@
 		681662F916861086006ADBA6 /* BTPhoneTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BTPhoneTracker.h; path = Shared/BTPhoneTracker.h; sourceTree = SOURCE_ROOT; };
 		681662FA16861086006ADBA6 /* BTPhoneTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BTPhoneTracker.mm; path = Shared/BTPhoneTracker.mm; sourceTree = SOURCE_ROOT; };
 		681662FC168E9547006ADBA6 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		68348C581763901500A5CD42 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = TestFlightSDK1.2.5/README.md; sourceTree = "<group>"; };
-		68348C591763901500A5CD42 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = release_notes.md; path = TestFlightSDK1.2.5/release_notes.md; sourceTree = "<group>"; };
-		68348C5A1763901500A5CD42 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFlight.h; path = TestFlightSDK1.2.5/TestFlight.h; sourceTree = "<group>"; };
-		68348C5B1763901500A5CD42 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTestFlight.a; path = TestFlightSDK1.2.5/libTestFlight.a; sourceTree = "<group>"; };
 		683E7AFF16822A05005BB855 /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mutex.h; path = Shared/Mutex.h; sourceTree = SOURCE_ROOT; };
 		683E7B0416824446005BB855 /* ChannelList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChannelList.h; path = Shared/ChannelList.h; sourceTree = SOURCE_ROOT; };
 		683E7B0516824446005BB855 /* ChannelList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelList.cpp; path = Shared/ChannelList.cpp; sourceTree = SOURCE_ROOT; };
@@ -177,7 +172,7 @@
 				C86C7F6A16331CA200D72C56 /* UIKit.framework in Frameworks */,
 				C86C7F6C16331CA200D72C56 /* Foundation.framework in Frameworks */,
 				C86C7F6E16331CA200D72C56 /* CoreGraphics.framework in Frameworks */,
-				68348C5E1763901500A5CD42 /* libTestFlight.a in Frameworks */,
+				2427D0AE1A967237007CCEC7 /* Crashlytics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,17 +248,6 @@
 			name = "HTTP Requests";
 			sourceTree = "<group>";
 		};
-		68348C5717638FFF00A5CD42 /* TestFlightSDK1.2.5 */ = {
-			isa = PBXGroup;
-			children = (
-				68348C581763901500A5CD42 /* README.md */,
-				68348C591763901500A5CD42 /* release_notes.md */,
-				68348C5A1763901500A5CD42 /* TestFlight.h */,
-				68348C5B1763901500A5CD42 /* libTestFlight.a */,
-			);
-			name = TestFlightSDK1.2.5;
-			sourceTree = "<group>";
-		};
 		C86C7F5A16331CA200D72C56 = {
 			isa = PBXGroup;
 			children = (
@@ -284,6 +268,7 @@
 		C86C7F6816331CA200D72C56 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2427D0AD1A967237007CCEC7 /* Crashlytics.framework */,
 				01958C04170208D700352687 /* QuartzCore.framework */,
 				01793CA3169F22B7009AF7F0 /* AssetsLibrary.framework */,
 				C875B20A1634648F00E150D9 /* AudioToolbox.framework */,
@@ -345,7 +330,6 @@
 		C86C7F7016331CA200D72C56 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				68348C5717638FFF00A5CD42 /* TestFlightSDK1.2.5 */,
 				C86C7F7116331CA200D72C56 /* FluxtreamCapture-Info.plist */,
 				C86C7F7216331CA200D72C56 /* InfoPlist.strings */,
 				C86C7F7516331CA200D72C56 /* main.mm */,
@@ -389,6 +373,7 @@
 				C86C7F6216331CA200D72C56 /* Frameworks */,
 				C86C7F6316331CA200D72C56 /* Resources */,
 				C86C7F9A16331CDA00D72C56 /* ShellScript */,
+				2427D0AC1A9671F7007CCEC7 /* Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -410,7 +395,7 @@
 				ORGANIZATIONNAME = BodyTrack;
 				TargetAttributes = {
 					C86C7F6416331CA200D72C56 = {
-						DevelopmentTeam = 7QF27LLTH4;
+						DevelopmentTeam = 4V3KHHYTZ4;
 					};
 				};
 			};
@@ -456,14 +441,27 @@
 				01BBDD4C16B2E580009C7F29 /* appicon@2x.png in Resources */,
 				013638D816B84F890088FAF9 /* 20-no.png in Resources */,
 				013638D916B84F890088FAF9 /* 20-no@2x.png in Resources */,
-				68348C5C1763901500A5CD42 /* README.md in Resources */,
-				68348C5D1763901500A5CD42 /* release_notes.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		2427D0AC1A9671F7007CCEC7 /* Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Crashlytics;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Crashlytics.framework/run ***API_KEY*** ***BUILD_SECRET***";
+			showEnvVarsInLog = 0;
+		};
 		C86C7F9A16331CDA00D72C56 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -596,6 +594,10 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FluxtreamCapture/FluxtreamCapture-Prefix.pch";
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -604,12 +606,7 @@
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				INFOPLIST_FILE = "FluxtreamCapture/FluxtreamCapture-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/FluxtreamCapture/TestFlightSDK1.2.5\"",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "684A689E-AA38-44FA-8AF7-E35368BE9463";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -618,8 +615,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FluxtreamCapture/FluxtreamCapture-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -629,12 +630,7 @@
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				INFOPLIST_FILE = "FluxtreamCapture/FluxtreamCapture-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/FluxtreamCapture/TestFlightSDK1.2.5\"",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "C2B07326-9A82-44EE-965E-89D7467A044E";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
