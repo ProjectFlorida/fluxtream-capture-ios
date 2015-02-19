@@ -372,7 +372,8 @@
 				C86C7F6116331CA200D72C56 /* Sources */,
 				C86C7F6216331CA200D72C56 /* Frameworks */,
 				C86C7F6316331CA200D72C56 /* Resources */,
-				C86C7F9A16331CDA00D72C56 /* ShellScript */,
+				C86C7F9A16331CDA00D72C56 /* Increment build number (defunct) */,
+				2427D0AF1A967C95007CCEC7 /* Set build version */,
 				2427D0AC1A9671F7007CCEC7 /* Crashlytics */,
 			);
 			buildRules = (
@@ -462,13 +463,28 @@
 			shellScript = "./Crashlytics.framework/run ***API_KEY*** ***BUILD_SECRET***";
 			showEnvVarsInLog = 0;
 		};
-		C86C7F9A16331CDA00D72C56 /* ShellScript */ = {
+		2427D0AF1A967C95007CCEC7 /* Set build version */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Set build version";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"${PROJECT_DIR}\"\n\n# assumes that we are running in a git repo:\nGIT_COMMIT_COUNT=\"`git rev-list HEAD --count`\"\nGIT_VERSION_STRING=\"`git log -n1 --date=short --pretty='%cd %h'` (${GIT_COMMIT_COUNT})\"\n#echo $GIT_VERSION_STRING\n\n# update the bundle version to indicate a new build:\n# note: this must be a monotonically increasing number. if all distributed builds (including TestFlight) use the develop or master branch, this method should suffice.\necho -n \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" | xargs -0 /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $GIT_COMMIT_COUNT\"";
+		};
+		C86C7F9A16331CDA00D72C56 /* Increment build number (defunct) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Increment build number (defunct)";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
